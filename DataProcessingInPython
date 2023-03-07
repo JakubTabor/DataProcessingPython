@@ -1,0 +1,168 @@
+{
+  "metadata": {
+    "toc-autonumbering": true,
+    "kernelspec": {
+      "name": "python",
+      "display_name": "Python (Pyodide)",
+      "language": "python"
+    },
+    "language_info": {
+      "codemirror_mode": {
+        "name": "python",
+        "version": 3
+      },
+      "file_extension": ".py",
+      "mimetype": "text/x-python",
+      "name": "python",
+      "nbconvert_exporter": "python",
+      "pygments_lexer": "ipython3",
+      "version": "3.8"
+    }
+  },
+  "nbformat_minor": 5,
+  "nbformat": 4,
+  "cells": [
+    {
+      "cell_type": "code",
+      "source": "import numpy as np\nimport matplotlib.pyplot as mp\nimport pandas as pd",
+      "metadata": {
+        "trusted": true
+      },
+      "execution_count": 2,
+      "outputs": [],
+      "id": "bae08bdf-1d2a-4b8c-81a2-c58f6f3d4d63"
+    },
+    {
+      "cell_type": "code",
+      "source": "dataset = pd.read_csv('Data.csv')\nx = dataset.iloc[:, :-1].values\ny = dataset.iloc[:, -1].values \n",
+      "metadata": {
+        "trusted": true
+      },
+      "execution_count": 3,
+      "outputs": [],
+      "id": "8814cc72-789a-4b7c-8e44-81d8003e0e69"
+    },
+    {
+      "cell_type": "code",
+      "source": "print(x)",
+      "metadata": {
+        "trusted": true
+      },
+      "execution_count": 4,
+      "outputs": [
+        {
+          "name": "stdout",
+          "text": "[['France' 44.0 72000.0]\n ['Spain' 27.0 48000.0]\n ['Germany' 30.0 54000.0]\n ['Spain' 38.0 61000.0]\n ['Germany' 40.0 nan]\n ['France' 35.0 58000.0]\n ['Spain' nan 52000.0]\n ['France' 48.0 79000.0]\n ['Germany' 50.0 83000.0]\n ['France' 37.0 67000.0]]\n",
+          "output_type": "stream"
+        }
+      ],
+      "id": "528483f5-9c7b-4310-9a49-78d1df7ada72"
+    },
+    {
+      "cell_type": "code",
+      "source": "from sklearn.impute import SimpleImputer\nimputer = SimpleImputer(missing_values=np.nan, strategy='mean')\nimputer.fit(x[:, 1:3])\nx[:, 1:3] = imputer.transform(x[:, 1:3])",
+      "metadata": {
+        "trusted": true
+      },
+      "execution_count": 5,
+      "outputs": [],
+      "id": "0c558673-d582-4606-9f0f-783aa18e6bf4"
+    },
+    {
+      "cell_type": "code",
+      "source": "from sklearn.compose import ColumnTransformer\nfrom sklearn.preprocessing import OneHotEncoder\nct = ColumnTransformer(transformers=[('encoder', OneHotEncoder(), [0])], remainder='passthrough')\nx = np.array(ct.fit_transform(x))",
+      "metadata": {
+        "trusted": true
+      },
+      "execution_count": 6,
+      "outputs": [],
+      "id": "c1b26d27-73d6-4b62-9dd5-191b9097c606"
+    },
+    {
+      "cell_type": "code",
+      "source": "print(x)",
+      "metadata": {
+        "trusted": true
+      },
+      "execution_count": 7,
+      "outputs": [
+        {
+          "name": "stdout",
+          "text": "[[1.0 0.0 0.0 44.0 72000.0]\n [0.0 0.0 1.0 27.0 48000.0]\n [0.0 1.0 0.0 30.0 54000.0]\n [0.0 0.0 1.0 38.0 61000.0]\n [0.0 1.0 0.0 40.0 63777.77777777778]\n [1.0 0.0 0.0 35.0 58000.0]\n [0.0 0.0 1.0 38.77777777777778 52000.0]\n [1.0 0.0 0.0 48.0 79000.0]\n [0.0 1.0 0.0 50.0 83000.0]\n [1.0 0.0 0.0 37.0 67000.0]]\n",
+          "output_type": "stream"
+        }
+      ],
+      "id": "364eeb01-db39-4728-bef1-1e4785648145"
+    },
+    {
+      "cell_type": "code",
+      "source": "from sklearn.preprocessing import LabelEncoder\nle = LabelEncoder()\ny = le.fit_transform(y)",
+      "metadata": {
+        "trusted": true
+      },
+      "execution_count": 8,
+      "outputs": [],
+      "id": "39af25f4-d535-47ba-9953-ad2d3d31ff29"
+    },
+    {
+      "cell_type": "code",
+      "source": "from sklearn.model_selection import train_test_split\nx_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state = 1)",
+      "metadata": {
+        "trusted": true
+      },
+      "execution_count": 9,
+      "outputs": [],
+      "id": "6db02bda-2897-4f09-b6e2-966381a6f565"
+    },
+    {
+      "cell_type": "code",
+      "source": "from sklearn.preprocessing import StandardScaler\nsc = StandardScaler()\nx_train[:, 3:] = sc.fit_transform(x_train[:, 3:])\nx_test[:, 3:] = sc.transform(x_test[:, 3:])",
+      "metadata": {
+        "trusted": true
+      },
+      "execution_count": 10,
+      "outputs": [],
+      "id": "4ec5c3a1-3894-499c-be72-24421a0e2d1d"
+    },
+    {
+      "cell_type": "code",
+      "source": "print(x_train)",
+      "metadata": {
+        "trusted": true
+      },
+      "execution_count": 11,
+      "outputs": [
+        {
+          "name": "stdout",
+          "text": "[[0.0 0.0 1.0 -0.19159184384578545 -1.0781259408412425]\n [0.0 1.0 0.0 -0.014117293757057777 -0.07013167641635372]\n [1.0 0.0 0.0 0.566708506533324 0.633562432710455]\n [0.0 0.0 1.0 -0.30453019390224867 -0.30786617274297867]\n [0.0 0.0 1.0 -1.9018011447007988 -1.420463615551582]\n [1.0 0.0 0.0 1.1475343068237058 1.232653363453549]\n [0.0 1.0 0.0 1.4379472069688968 1.5749910381638885]\n [1.0 0.0 0.0 -0.7401495441200351 -0.5646194287757332]]\n",
+          "output_type": "stream"
+        }
+      ],
+      "id": "38243c43-e7bf-44b3-8d09-0fbe8a8927cb"
+    },
+    {
+      "cell_type": "code",
+      "source": "print(x_test)",
+      "metadata": {
+        "trusted": true
+      },
+      "execution_count": 12,
+      "outputs": [
+        {
+          "name": "stdout",
+          "text": "[[0.0 1.0 0.0 -1.4661817944830124 -0.9069571034860727]\n [1.0 0.0 0.0 -0.44973664397484414 0.2056403393225306]]\n",
+          "output_type": "stream"
+        }
+      ],
+      "id": "ba39842e-0a8b-4018-b708-aef4ca2762a9"
+    },
+    {
+      "cell_type": "code",
+      "source": "",
+      "metadata": {},
+      "execution_count": null,
+      "outputs": [],
+      "id": "829cd6df-dc81-424c-8c76-adb99cb316af"
+    }
+  ]
+}
